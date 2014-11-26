@@ -1,0 +1,120 @@
+.\" first change 2013–02–28
+.\" last change 2014–11–26
+
+# The lazy student
+
+A lazy student (./bibliog.txt#dice, p. 4) is given an exam containing N
+questions and the N
+correct answers, except that question and answer are not matched.
+He has to match them.  Since he is thoroughly clueless, all he
+can do is  guess. On average, how many correct
+matches can he hope to get?
+
+The answer is 1. 
+This seemed totally incredible to me!
+Monte
+Carlo to the rescue.
+
+First, we will need a procedure `randperm` to produce a random permutation of the
+natural numbers from 1 to N.  This will simulate one set of
+guesses for N questions.  Thus, if N is 4, then `(randperm 4)` 
+might produce
+
+```l
+(4 2 3 1)
+````
+
+which implies that the student matched answer-4 with question-1,
+answer-2 with question-2, etc.
+
+To make it more general, we will also define a 2-ary `randperm`, so
+`(randperm N M)` returns a random permutation of `M` (<=
+`N`) out of
+the first `N` natural numbers.  `(randperm N)` then is short for
+`(randperm N N)`.  For this problem, we will only need the unary
+`randperm`.
+
+Since we expect this procedure to be useful for other problems,
+let’s define it in a module `probutil`:
+
+```l
+(defmodule probutil
+  (export (randperm 1) (randperm 2)))
+
+(defun randperm (n m)
+  (fletrec ((loop (j result already-selected)
+                  (if (=< j m)
+                    (fletrec ((loop2 (i)
+                                     (let ((i (if (> i n) 1 i)))
+                                       (if (: lists member i already-selected)
+                                         (loop2 (+ i 1))
+                                         (loop (+ j 1)
+                                               (cons i result)
+                                               (cons i already-selected))))))
+                      (loop2 (: random uniform n)))
+                    result)))
+    (loop 1 () ())))
+
+(defun randperm (n)
+  (randperm n n))
+````
+
+We can now write the solution for the lazy-student problem in
+`guess.lfe`:
+
+```l
+(defmodule guess
+  (export (run 1)))
+
+(defun count-correct-guesses (num-questions)
+  (let ((guesses (: probutil randperm num-questions)))
+    (fletrec ((loop (i correct-so-far)
+                    (if (=< i num-questions)
+                      (loop (+ i 1)
+                            (if (== (: lists nth i guesses) i)
+                              (+ correct-so-far 1)
+                              correct-so-far))
+                      correct-so-far)))
+      (loop 1 0))))
+
+(defun run (num-questions)
+  (: montecarlo run (lambda () (count-correct-guesses num-questions))))
+````
+
+This reuses the module `montecarlo` we defined earlier.  Type
+
+```l
+(: guess run 24)
+````
+
+at the LFE prompt to find the average number of correct guesses
+the lazy student can expect to make on a questionnaire with 24
+questions.  The answer should be close to 1 regardless of
+questionnaire size.
+
+As a further twist, let’s assume the student doesn’t even bother
+to use all the answers when aligning with the questions. Thus, he
+may use some answers more than once, which of course implies
+he doesn’t use some other answers at all.  How many correct
+guesses can he expect to make now?  The answer, still
+surprisingly, is 1!
+
+We can code this new scenario in module `guess2` as follows:
+
+```l
+(defmodule guess2
+  (export (run 1)))
+
+(defun count-correct-guesses (num-questions)
+    (fletrec ((loop (i correct-so-far)
+                    (if (=< i num-questions)
+                      (loop (+ i 1)
+                            (if (== (: random uniform num-questions) i)
+                              (+ correct-so-far 1)
+                              correct-so-far))
+                      correct-so-far)))
+      (loop 1 0)))
+
+(defun run (num-questions)
+  (: montecarlo run (lambda () (count-correct-guesses num-questions))))
+````

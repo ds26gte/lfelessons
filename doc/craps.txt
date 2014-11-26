@@ -1,0 +1,137 @@
+.\" first change 2013–02–28
+.\" last change 2014–11–26
+# Craps
+
+In the game of craps (./bibliog.txt#50cpp, prob. 9), the player throws two dice. If the total is 7
+or 11, he wins.  If it’s 2 or 3 or 12, he loses.  Otherwise, the
+value thrown is remembered as the “point”, and he continues to
+throw the two dice.  If he is able to repeat the “point”, he
+wins.  If he throws 7, he loses. Otherwise, he continues
+throwing.  What is his probability of winning?
+
+Here’s the Monte Carlo simulation:
+
+```l
+(defmodule craps
+  (export (run 0)))
+
+(defun game ()
+  (: random seed (now))
+  (let ((throw-1 (+ (: random uniform 6)
+                    (: random uniform 6))))
+    (cond ((orelse (== throw-1 7) (== throw-1 11))
+           1)
+          ((orelse (== throw-1 2) (== throw-1 3) (== throw-1 12))
+           0)
+          ('true
+           (fletrec ((loop ()
+                           (let ((throw-i (+ (: random uniform 6) (: random uniform 6))))
+                             (cond ((== throw-i throw-1) 1)
+                                   ((== throw-i 7) 0)
+                                   ('true (loop))))))
+             (loop))))))
+
+(defun run ()
+  (: montecarlo run #'game/0))
+````
+
+## Timed trials
+
+The above should  work most of the time, but there is a teeny chance that the
+program will loop forever or at least for too long.  One way to
+avoid this danger is to limit
+the amount of time the game can go on, and to grant the player
+the win if he lasts that long.  We need a wrapper procedure,
+`timed-experiment`, that
+can run the game within a time limit.  We’ll put this procedure
+in the `montecarlo` module, as we expect it will be useful in
+other problems:
+
+```l
+(defun timed-experiment (experiment timeout default-result)
+  (lambda ()
+    (let* ((experiment-ref (make_ref))
+           (spawner (self))
+           (experiment-pid (spawn (lambda ()
+                                    (! spawner (tuple experiment-ref (funcall experiment)))))))
+      (receive
+        ((tuple experiment-ref result) result)
+        (after timeout
+               (exit experiment-pid '"taking too much time; return default result")
+               default-result)))))
+````
+
+We now start to use LFE features that are not usually mimickable
+in standard Scheme and Lisp.  `timed-experiment` sets three
+local variables: First,
+`experiment-ref`, which contains a unique
+reference returned by  `(make_ref)`, i.e., a value whose sole
+purpose is to  be equal nothing but itself, in other words, an
+identity marker. Second, `spawner`, which
+holds the
+current process ID or PID, as returned by `(self)`. And
+finally, `experiment-id`, which holds the PID of a child
+process, which is created using `spawn`.
+
+The child runs concurrently
+with the parent, and takes care to run the `experiment`. When
+(if!) the `experiment` completes, the child sends a
+message to the parent process, using `(! spawner ...)`, a tuple
+containing `experiment-ref` and the result of the
+`experiment`.
+
+A tuple is nothing but a composite object containing other
+objects, possibly even other tuples.
+
+The parent, meanwhile, is waiting to `receive` messages.  If it
+gets a message tuple whose first element is the
+`experiment-ref` when it spawned this child, then it knows that the tuple’s second element
+is its desired result. If too much time elapses, `receive`
+triggers its `after`-clause, which deems `default-result` to
+be the result, but not before
+killing off the child process.
+
+We could have had the child process simply return the raw result
+instead of wrapping it a tuple along with `experiment-ref`, but
+the latter gives the calling procedure some assurance that this is
+the message it was waiting for.  This is important when there is
+a crowd of processes, all busily sending messages to the parent,
+as in this case.
+Note, that the parent PID may not be sufficiently
+distinctive as an ID, as we have multiple trials created within the same
+parent process, each trial requiring a result peculiar to itself
+from a child peculiar to itself. In
+our case, each trial waits (or blocks) until its child is either done or
+killed, so there is little likelihood that a child from a
+previous trial could send a message that is picked up by a
+subsequent trial, but it helps to be defensive.
+
+Remember to add `(timed-experiment 3)` to `montecarlo`’s
+`export`s.
+
+Back in module `craps`, we now redefine `run` to use a
+timeout of 2 minutes:
+
+```l
+(defun run ()
+  (: montecarlo run
+     (: montecarlo timed-experiment #'game/0
+        ;if taking more than
+        (* 2 60 1000) ;ms
+        ;let customer win
+        1
+        )))
+````
+
+`(: craps run)` should give answers close to 0.49293.
+
+Note that we called `(: random seed (now))` in the beginning of
+`game`’s body. This reseeds the random-number generator’s state
+using the current time. This is especially needed in this
+problem because we’re running each game in its own process.
+Which implies they all inherit an identical copy of the same random state, which
+further implies they will all act identically, producing the same
+result, thus sabotaging the simulation.  If the games were not
+spawned, as in our first attempt, this would not be a problem, as
+the games all operate on the same random state (not a copy), so
+they can’t mimic each other’s stream of random numbers.

@@ -1,0 +1,340 @@
+.\" first change 2013–02–28
+.\" last change 2014–11–26
+
+# ElevaTorS going the wrong way
+
+George Gamow (./bibliog.txt#dice, prob. 5) is on the 2nd
+floor†1 of a 7-storey building, and wishes to go up.
+What is the probability that the first elevator Gamow sees will
+be going the wrong way?  Assume, successively, 1, 2, and 3
+elevators in operation.
+
+† 1
+North
+American usage, where the ground floor is the 1st, not 0th,
+floor.‡
+
+A natural approach is to create a list or array
+(since the number of elevators is known) of elevator records, and
+to calculate for each elevator the distance it will have to
+travel to reach Gamow, and the direction it will have  on
+reaching Gamow.  Once this is done, we scan the array to pick out
+the elevator with the least distance to Gamow.
+
+## Records
+
+`defrecord` creates records (or “structures” or “structs”):
+
+```l
+(defrecord elevator
+  label
+  distance-to-gamow
+  direction-seen-by-gamow)
+````
+
+This defines a record type called `elevator`, with three
+fields, viz., `label`, `distance-to-gamow`, and
+`direction-seen-by-gamow`.  It also defines a host of
+conveniently named functions for manipulating  elevator records.
+
+An `elevator` instance (or simply, elevator) is made by
+calling `make-elevator`.  E.g.,
+
+```l
+(make-elevator label 1)
+````
+
+which defines an elevator with `label` = 1, and its other
+fields left undefined.
+
+Individual fields can be accessed with `elevator-label`, etc.
+E.g.,
+
+```l
+(elevator-distance-to-gamow elev1)
+````
+
+Fields can be set using `set-elevator-label`, etc. E.g.,
+
+```l
+(set-elevator-distance-to-gamow elev1 0.6)
+````
+
+But note that this is not a side-effect perpetrated on `elev1`; it merely returns a new elevator, which agrees
+with `elev1` except (maybe) in the field `distance-to-gamow`.
+
+One can set many fields at once, with `set-elevator`:
+
+```l
+(set-elevator elev1
+  distance-to-gamow 0.7
+  direction-seen-by-gamow -1)
+````
+
+Finally, records are just syntactic xylitol. The record instances
+are merely tuples, of length one more than the number of fields.
+An elevator instance is a tuple with four
+elements: The first element is an atom (what Lispers would call
+“symbol”) identifying the record, in this case `elevator`,
+and the remaining three elements are the   values of the three
+fields. Thus,
+an accessor function like `elevator-label` does nothing
+more than find the 2nd element of its argument tuple
+(because `label` is the 1st field, and therefore occupies the 2nd
+spot). It won’t even check that its argument tuple is a plausible
+elevator! Caveat utilitor!
+
+LFE will let you call the accessor function
+without arguments if you want to find the underlying tuple index. Thus,
+
+```l
+(elevator-label)
+````
+
+returns 2.  This will come in handy when we store records in ETS
+tables.
+
+## ETS tables
+
+If we are going for a natural solution (for some definition
+of “natural”), we will be
+putting values into an array of our elevators,
+and then marching
+through the array updating our initial
+guess of the “closest” elevator as we go along.
+This calls for side-effects, or an imperative, i.e., non-functional, programming
+style.  How do we accomplish this in a nominally side-effect-free
+language such as LFE?  The answer: Erlang Term Storage,
+affectionately known as ETS.
+
+ETS lets you define a table where you can insert and lookup
+tuples based on a pre-set element position. You can think of
+an ETS table as a separate process that responds to insert and lookup
+messages.  To create a new table called `elevators`:
+
+```l
+(: ets new 'elevators
+  (list 'named_table (tuple 'keypos (elevator-label))))
+````
+
+The final argument is a list of options:
+The `’named_table` is needed so we can refer to the table using
+the atom `elevators`.  The  tuple with `keypos` declares the table’s
+key to be `(elevator-id)`, i.e., the index into an elevator
+record that identifies its label. To belabour the obvious, we intend to store
+`elevator`s (instances of the `elevator` type)
+in our `elevators` ETS table, and we will be using the
+elevator’s `label` field to lookup or update the records in the table.
+
+```l
+(: ets insert ‘elevators (make-elevator label 5))
+````
+
+Finding an elevator instance with a given label is almost as easy:
+
+```l
+(: ets lookup 'elevators 10)
+````
+
+Note that this returns ⋆a list⋆ containing the required
+elevator.  This is for two reasons: If the table doesn’t have the
+desired elevator, the empty list is a natural return value; and
+second, there are other types of ETS tables — bag-like, not
+set-like — that can return
+multiple table elements.
+
+Finally, we can use `(: ets info ‘elevators)` to check if an
+`elevators` table already exists.  This is a useful check
+because trying to create a table with the same name as an
+existent one triggers error.
+
+## Back to the second floor
+
+Let us consider the elevators to ply between point 0 and point 1, with Gamow
+at point 1/6. (The 1st-floor elevator landing is at point 0; the
+7th-floor landing is at
+1; and the 2nd-floor landing, where Gamow is waiting, is at 1/6.
+If you need pencil and paper to convince yourself of this, do it
+now!)
+
+For each trial, we’ll randomly assign positions between 0 and 1 to
+each of the elevators. We’ll also randomly assign direction of
+movement (+1 for up, -1 for down) to each elevator.  We’ll use
+the `elevator` record defined above.
+
+Basic arithmetic is enough to calculate the distance needed to be
+travelled by each elevator to reach Gamow, and the direction it
+will be travelling in on reaching Gamow.  We will store these
+values in an ETS table for `elevators` as defined above. Next,
+we’ll add another entry into the ETS table for an elevator
+labelled `closest-so-far`, and initialize it with elevator
+number 1.  We’ll scan the ETS table for all the remaining
+elevators, updating `closest-so-far` whenever we find an
+elevator that is even closer to Gamow.  After the scan is
+complete, the elevator labelled `closest-so-far` will indeed be
+the elevator that will reach Gamow before all others.  Since
+we’re finding the probabilty that Gamow will be frustrated, if
+this closest elevator is going the wrong way (down), the trial
+counts as a success.
+
+The following looks complicated, but it’s only elementary
+arithmetic spelled out.
+
+```l
+(defun trial (num-elevators)
+  (let ((gamow-height (/ 1 6)))  
+    (fletrec ((calc-elevs  
+                (i)  
+                (if (=< i num-elevators)  
+                  (let⋆ ((i-position (: random uniform))  
+                         (i-direction (if (< (: random uniform) 0.5) 1 -1))  
+                         (distance-to-gamow  
+                           (cond ((> i-position gamow-height)  
+                                  (case i-direction  
+                                    (+1 (+ (- 1 i-position) (- 1 gamow-height)))  
+                                    (-1 (- i-position gamow-height))))  
+                                 ((< i-position gamow-height)  
+                                  (case i-direction  
+                                    (+1 (- gamow-height i-position))  
+                                    (-1 (+ i-position gamow-height))))  
+                                 ((== i-position gamow-height)  
+                                  0)))  
+                         (direction-seen-by-gamow  
+                           (cond ((> i-position gamow-height) -1)  
+                                 ((< i-position gamow-height) 1)  
+                                 ((== i-position gamow-height) i-direction))))  
+                    (: ets insert ‘elevators  
+                       (set-elevator  
+                         (car (: ets lookup ‘elevators i))  
+                         distance-to-gamow distance-to-gamow  
+                         direction-seen-by-gamow direction-seen-by-gamow))  
+                    (calc-elevs (+ i 1))))))  
+      (calc-elevs 1))  
+    (: ets insert ‘elevators  
+       (set-elevator  
+         (car (: ets lookup ‘elevators 1))  
+         label ‘closest-so-far))  
+    (fletrec ((find-closest-elev  
+                (i)  
+                (if (=< i num-elevators)  
+                  (progn  
+                    (let ((ith-elev (car (: ets lookup ‘elevators i))))  
+                      (if (< (elevator-distance-to-gamow ith-elev)  
+                             (elevator-distance-to-gamow  
+                               (car (: ets lookup ‘elevators ‘closest-so-far))))  
+                        (: ets insert ‘elevators  
+                           (set-elevator ith-elev  
+                                         label ‘closest-so-far)))  
+                      (find-closest-elev (+ i 1)))))))  
+      (find-closest-elev 2))  
+    (let ((closest-elev  
+            (car (: ets lookup ‘elevators ‘closest-so-far))))  
+      (if (== (elevator-direction-seen-by-gamow closest-elev) -1)  
+        1  
+        0))))  
+````
+
+Now for a `run` procedure that will call Monte Carlo:
+
+```l
+(defun run (num-elevators)
+  (if (== (: ets info 'elevators) 'undefined)
+    (: ets new 'elevators (list 'named_table (tuple 'keypos (elevator-label)))))
+  (fletrec ((loop (i)
+                  (if (=< i num-elevators)
+                    (progn
+                      (: ets insert 'elevators (make-elevator label i))
+                      (loop (+ i 1))))))
+    (loop 1))
+  (: montecarlo run (lambda () (trial num-elevators))))
+````
+
+Put all this in a module file `elevator.lfe` with the following
+header:
+
+```l
+(defmodule elevator
+  (export (run 1)))  
+````
+
+`(: elevator run N)` should give values close to 1/2 +
+(1/2)⋆(2/3)⋆⋆N.
+
+## Functional elevators
+
+That is not the whole story, of course.
+
+Imperative-style programming is sometimes needed and unavoidable, but
+at least in this case, we can devise a pure-functional
+solution. In the above code, we put our commonly accessed and
+updated information, the “state”, in an ETS table that is
+manipulated
+to the two loops (local recursive procedures)
+`calc-elevs` and `find-closest-elev`.
+
+A canonical way to get rid of state is to have the procedures
+carry around, via their arguments, the information associated
+with the state. Here is a rewrite (in module `elevatorf`: `f`
+for functional), with records but no ETS.
+
+```l
+(defmodule elevatorf
+  (export (run 1)))  
+
+(defrecord elevator
+  distance-to-gamow  
+  direction-seen-by-gamow)  
+
+(defun trial (num-elevators)
+  (let ((gamow-height (/ 1 6)))  
+    (fletrec ((calc-elevs  
+                (i elevs-so-far)  
+                (if (=< i num-elevators)  
+                  (let⋆ ((i-position (: random uniform))  
+                         (i-direction (if (< (: random uniform) 0.5) 1 -1))  
+                         (distance-to-gamow  
+                           (cond ((> i-position gamow-height)  
+                                  (case i-direction  
+                                    (+1 (+ (- 1 i-position) (- 1 gamow-height)))  
+                                    (-1 (- i-position gamow-height))))  
+                                 ((< i-position gamow-height)  
+                                  (case i-direction  
+                                    (+1 (- gamow-height i-position))  
+                                    (-1 (+ i-position gamow-height))))  
+                                 ((== i-position gamow-height)  
+                                  0)))  
+                         (direction-seen-by-gamow  
+                           (cond ((> i-position gamow-height) -1)  
+                                 ((< i-position gamow-height) 1)  
+                                 ((== i-position gamow-height) i-direction))))  
+                    (calc-elevs (+ i 1)  
+                                (cons (make-elevator  
+                                        distance-to-gamow  
+                                        distance-to-gamow  
+                                        direction-seen-by-gamow  
+                                        direction-seen-by-gamow)  
+                                      elevs-so-far)))  
+                  elevs-so-far)))  
+      (let ((elevs (calc-elevs 1 ())))  
+        (fletrec ((find-closest-elev  
+                    (i closest-so-far)  
+                    (if (=< i num-elevators)  
+                      (let ((ith-elev (: lists nth i elevs)))  
+                        (find-closest-elev  
+                          (+ i 1)  
+                          (if (< (elevator-distance-to-gamow ith-elev)  
+                                 (elevator-distance-to-gamow closest-so-far))  
+                            ith-elev  
+                            closest-so-far)))  
+                      closest-so-far)))  
+          (let ((closest-elev (find-closest-elev 2 (car elevs))))  
+            (if (== (elevator-direction-seen-by-gamow closest-elev) -1)  
+              1  
+              0)))))))  
+
+(defun run (num-elevators)
+  (: montecarlo run (lambda () (trial num-elevators))))  
+````
+
+There, that wasn’t too painful, and you may even like this
+solution better!

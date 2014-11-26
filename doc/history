@@ -1,0 +1,25 @@
+Last change 2014-11-26
+
+2014 Nov 26
+
+Use new (mod:sym ...) syntax instead of clunkier (: mod sym ...)
+
+2013 March 7
+
+Added section "Getting wet" showing use of linked processes and
+exit signals.
+
+2013 March 3
+
+Added EUnit tests.
+
+2013 March 2
+
+Put each section in a different HTML page.
+
+In the craps and elevator sections, explained used language
+features. Also offered functional solution for elevator prob.
+
+2013 March 1
+
+First upload.

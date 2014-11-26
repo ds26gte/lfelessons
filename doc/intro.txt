@@ -1,0 +1,155 @@
+.\" first change 2013–02–28
+.\" last change 2014–11–26
+
+# Numerical examples, really?
+
+Here is a  introduction to LFE, or Lisp-Flavoured
+Erlang (./bibliog.txt#lfe).†1
+
+† 1
+Those with a smattering of Scheme or Lisp
+should find a lot that is familiar.
+LFE is
+properly tail-recursive, like Scheme, but keeps the function-name
+space separate from the other variables, like Common Lisp.
+Furthermore, variables aren’t really “variable”, although it is
+possible to get the effect of assignment by using ETS (= Erlang
+Term Storage), whose
+usage is very roughly analogous to that of the property lists
+hanging off of symbols in Common Lisp.  Of course, LFE has
+concurrency-related features that are usually not present in
+standard Scheme or Lisp.‡
+
+While trying to get up to speed on a new language, I’ve found it
+useful to try to program Monte-Carlo solutions to probability
+problems.  Now learning programming using numerical computation
+is not very popular these days, but this is because
+calculating gcd’s, factorials, and Fibonacci numbers is not very
+motivating to folks. In contrast, Monte-Carlo
+simulations gamely manage to hold interest, because the solutions can be
+full of surprise and even charm, are  either impossible or
+head-hurtingly difficult to
+find analytically,
+and of course the little gambler in everyone is eager to know or confirm a result.
+In one’s burning desire to get to the result, one quickly learns the
+rudiments of the language: basic arithmetic operations,
+conditionals, loops, procedures, scoping. For a collection of
+varied problems suitable for this venture,
+see ./bibliog.txt#50cpp, ./bibliog.txt#idiots,
+./bibliog.txt#dice.
+
+## Everybody doesn’t get a car
+
+As a first example, let us solve the very famous but still
+twitchily surprising Monty Hall problem (./bibliog.txt#idiots, p.
+192). A game-show host
+shows a player three closed doors, behind one of which is
+the prize, a car.  The player picks a door, whereupon the host
+opens one of the remaining two doors, with no car behind it. The player is now given the
+option to stick with his choice or pick the other unopened door.
+If the car is behind his final chosen door, it is his. The
+question is: Should he stick with his initial choice, or should
+he switch?
+
+The analytical solution says he has 2/3 probability of winning if
+he switches. If you are not convinced, a Monte-Carlo simulation
+should help: We run the scenario a lot of times, say N times, and
+calculate the number of times, m, that a switch would
+win the car. m/N then gives the frequency-based probability that
+a switch wins.
+
+First, we define a thunk (0-ary procedure) `game` representing each
+scenario (or experiment, or game, in this context):
+
+```l
+(defun game ()
+  (let ((actual-loc-of-car (: random uniform 3))
+        (loc-picked-by-player (: random uniform 3)))
+    (if (== actual-loc-of-car loc-picked-by-player)
+        0
+        1)))
+````
+
+This is pretty straightforward Lisp: `defun` defines a
+procedure, here named `game`, with no arguments.  `let`
+introduces local variables, here: `actual-loc-of-car`, for the
+actual location of the car; and
+`loc-picked-by-player`, for the location initially chosen by
+the player.
+`(: random uniform N)` returns a random integer uniformly
+distributed between
+`1` and `N`, inclusive: The procedure called is `uniform`,
+from the standard module `random`.
+
+When `game` is called, it randomly
+assigns values (from 1 through 3) to
+`actual-loc-of-car` and `loc-picked-by-player`.
+If these
+match, clearly the player should not switch. If they don’t, the
+door not opened by the host certainly does contain the car, and the player
+should switch.  We have `game` return `1` if a switch is
+advisable, `0` if not. Why we use numbers rather than booleans
+should be obvious from the following.
+
+We now define a thunk `run` that runs `game` a large number
+of times, returning the average return value:
+
+```l
+(defun run ()
+  (let ((num-trials 10000))  
+    (fletrec ((loop (i acc)  
+                (if (=< i num-trials)  
+                    (loop (+ i 1) (+ (game) acc))  
+                    (/ acc num-trials))))  
+      (loop 1 0))))  
+````
+
+Here `fletrec` defines a local recursive procedure `loop`,
+which takes two arguments, `i` and `acc`.  `loop` is called with
+1, the (ordinal) number of the first trial; and 0, the accumulated sum so
+far.  The `if` inside the loop ensures that loop is called
+(“looped”) exactly `num-trials = 10000` times.  Each loop
+call but the last adds to `acc`; the last call returns the
+average value.
+
+This is how one does
+loops or iteration in properly tail-recursive
+languages such LFE: there is no dedicated loop
+primitive and no need for it either.
+
+We’ll put the definitions of `game` and `run` in a file
+called `montyhall.lfe`, and add the following header to it:
+
+```l
+(defmodule montyhall
+  (export (run 0)))
+````
+
+The name of the module must match the basename of the file
+containing it. Compile the file as:
+
+````
+% lfec montyhall
+````
+
+where `%` is your OS prompt.  This produces the compiled file
+`montyhall.beam`.
+
+Now start LFE:
+
+````
+% lfe
+Erlang <version> ...
+LFE Shell <version> (abort with ^G)
+>
+````
+
+At the LFE prompt (`>`), call the procedure `run`:
+
+```l
+> (: montyhall run)
+````
+
+`(: montyhall run)` is how you call the `export`ed
+procedure `run` in the module `montyhall`.
+The result should be close to 2/3.

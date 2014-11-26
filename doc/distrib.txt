@@ -1,0 +1,44 @@
+.\" first change 2013–03–09
+.\" last change 2014–11–26
+
+# The example code
+
+⋆Download the tarball⋆ ./lfelessons.tar.bz2 containing the
+source for this document and the example code. Unpacking it
+(`tar jxf lfelessons.tar.bz2`)
+produces a directory `lfelessons` with the following tree
+structure:
+
+```
+lfelessons
+├── manifest
+├── makefile
+├── doc
+│   ├── index.txt
+│   ├── title.txt
+│   ├── intro.txt
+│   └── ...
+└── src
+    ├── montyhall.lfe
+    ├── montecarlo.lfe
+    ├── guess.lfe
+    └── ...
+````
+
+`doc` contains the sources for this document.  `src`
+contains the example code.  There is also a `makefile` which
+may be called with various arguments:
+
+• `make html` makes the HTML version of the document. 
+
+• `make beam` compiles the example LFE module files in `src` into a
+subdirectory called `ebin`.  If you have unpacked
+`lfelessons` in a directory under `ERL_LIBS`, you may access
+the compiled modules without qualification.
+
+• `make test` runs tests on the example modules.
+
+• `make dist` makes a tarball out of the directory.
+
+• `make clean` removes all the created files (compiled
+modules, HTML, auxiliary files).

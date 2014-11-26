@@ -1,0 +1,119 @@
+.\" first change 2013–02–28
+.\" last change 2014–11–26
+# The filing system
+
+In the last section, we had all our files in a “current working
+directory”. We called `lfec` in the same directory that we
+created `montyhall.lfe` in, and it made `montyhall.beam` in
+the same directory. We called `lfe` in the same directory to run
+the compiled program.
+
+While this works for a small example, it will be convenient in
+the long run to arrange
+our files in a standard directory structure. First, we will
+define the environment variable `ERL_LIBS` to point to an
+umbrella directory that will contain, at whatever depth, all our
+LFE files.  E.g.,
+
+```
+export ERL_LIBS=~/erllib
+````
+
+Now, under `$ERL_LIBS`, it does not matter at what depth, create
+a directory `prob` to contain all our code pertaining to this
+text.  In `prob` create the subdirectories `src` and
+`ebin`.  Put the file `montyhall.lfe` in `prob/src`.
+`cd` to `prob/src`, and type
+
+```
+lfec -o ../ebin montyhall
+````
+
+This will create `montyhall.beam` in `prob/ebin`.  
+
+You may now call `lfe` anywhere, and any compiled file that is
+in an `ebin` anywhere under `$ERL_LIBS` will be directly
+visible.
+
+```
+% lfe
+Erlang ...
+LFE Shell ...
+> (: montyhall run)
+> 0.6713
+````
+
+I find it useful to have my text editor vim load the following
+automatically:
+
+```
+set acd
+au bufwritepost *.lfe !lfec -o ../ebin %
+````
+
+This will take care to compile any `.lfe` file you edit to the
+appropriate place. You may be able to do something similar with
+Emacs.
+
+## Multiple modules
+
+In `montyhall.lfe`, the part that runs the game many times can
+be extracted out into a different module, say `montecarlo.lfe`,
+because we expect to use it unchanged for many different
+problems, not just the Monty Hall game.
+
+```l
+(defmodule montecarlo
+  (export (run 1) (run 2)))
+
+(defun run (experiment num-trials)
+  (fletrec ((loop (i acc)
+                  (if (=< i num-trials)
+                    (loop (+ i 1) (+ acc (funcall experiment)))
+                    (/ acc num-trials))))
+    (loop 1 0)))
+
+(defun run (experiment)
+  (run experiment 
+       ;since num-trials not specified, assume
+       10000))
+````
+
+Note again, the module name matches the basename of the file.
+
+We have defined the function `run` twice! In LFE, unlike Lisp
+or Scheme, we can provide a function definition for the same name
+multiple times, as long as they differ in arity (the number of
+arguments they accept).  When the function is called, it does the
+right thing based on the number of arguments supplied.
+
+The 2-ary `run` takes two arguments, the `experiment` to be
+run, and `num-trials`, the number of times it needs to be run.
+The unary `run` lacks the `num-trials` parameter, so it
+assumes it to be `10000` before handing the job over to 2-ary `run`.
+
+The `export` indicates we make available both the unary and the
+2-ary procedures `run`.  
+
+Note also that within the 2-ary `run`, the argument
+`experiment` when called, requires a `funcall`. This is
+because LFE is a Lisp-2, and any variable containing a function
+must be `funcall`ed, otherwise the symbol-function associated
+with the variable name would be called.
+
+We also need corresponding changes in `montyhall.lfe`.  We
+replace the existing `run` definition with the following
+wrapper to the `run` in `montecarlo.lfe`:
+
+```l
+(defun run ()
+  (: montecarlo run (fun game 0)))
+````
+
+`(fun game 0)`
+is how you refer, as a value, to the 0-ary procedure `game`.
+You may also use `#’game/0`.
+
+If you further wanted to specify the module that this procedure
+hails from, use `(fun montyhall game 0)` or
+`#’montyhall:game/0`.

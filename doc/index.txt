@@ -1,0 +1,16 @@
+.\" last change 2014–11–26
+
+# LFE Lessons #
+
+.so version.txt
+
+### Contents
+
+.so intro.txt Numerical examples, really?
+.so erllib.txt The filing system
+.so lazystudent.txt The lazy student
+.so craps.txt Craps
+.so elevators.txt ElevaTorS going the wrong way
+.so umbrella.txt Getting wet
+.so distrib.txt The example code
+.so bibliog.txt References

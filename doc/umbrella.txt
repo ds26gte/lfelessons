@@ -1,0 +1,150 @@
+.\" first change 2013–03–07
+.\" last change 2014–11–26
+
+# Getting wet
+
+An absent-minded prof (./bibliog.txt#dice, prob. 10) intends to walk to work in the
+morning and back home in the evening every day for five years.
+The walk is short enough that if the weather is clear when he sets out he
+will make it to his destination without threat of rain.  But if
+it is raining, which it can be with a certain probability, he
+can’t go out without an umbrella. 
+
+To prepare for this, AMP keeps an
+umbrella at both home and office.  
+Unfortunately, if it is clear,
+he neglects to take an umbrella along, so there is a possibility that
+when it does rain, both his umbrellas are at the other place and
+he is stranded.  How many walks can he hope to make on average
+before being stranded?
+
+We can model each location (home, office) as a process that keeps
+track of the number of umbrellas it has.  Each walk is simulated
+by a message from one location to the other.  The message
+contains the number of walks so far (including the current one), and whether AMP is
+carrying an umbrella on this walk (i.e., it is raining).
+
+Each trial spawns a `walk` process and waits for the result.
+Each `walk` process spawns and links to two `location` processes, one for the
+home and the other for the office, and kicks off the to-and-fro
+walking between them.  If  AMP is either stranded or has
+managed to go the full five years, the location he is at exits
+with a message containing the number of walks so far.  The `walk`
+process returns this result as the value of the trial.
+
+```l
+(defun location (rain-prob max-num-walks)
+  (: random seed (now))
+  (let ((me (self)))
+    (fletrec ((loop (num-umbrellas)
+                    (receive
+                      ((tuple pid num-walks umbrella)
+                       (let ((num-umbrellas (+ num-umbrellas umbrella)))
+                         (cond ((>= num-walks max-num-walks) (exit num-walks))
+                               ((< (: random uniform) rain-prob)
+                                (if (> num-umbrellas 0)
+                                  (progn
+                                    (!  pid (tuple me (+ num-walks 1) 1))
+                                    (loop (- num-umbrellas 1)))
+                                  (exit num-walks)))
+                               ('true
+                                (! pid (tuple me (+ num-walks 1) 0))
+                                (loop num-umbrellas))))))))
+      (loop 1))))
+
+(defun walk (trial-pid rain-prob max-num-walks)
+  (process_flag 'trap_exit 'true)
+  (let ((home-pid (spawn_link (lambda () (location rain-prob max-num-walks))))
+        (office-pid (spawn_link (lambda () (location rain-prob max-num-walks)))))
+    (! home-pid (tuple office-pid 0 0))
+    (receive
+      ((tuple 'EXIT _ value)
+       (! trial-pid value)))))
+
+(defun trial (rain-prob max-num-walks)
+  (let ((trial-pid (self)))
+    (spawn (lambda () (walk trial-pid rain-prob max-num-walks)))
+    (receive
+      (result
+        result))))
+````
+
+The procedure `spawn_link` both spawns a child and links the
+parent to the child.  Thus the `walk` process is linked to both
+`home-pid` and `office-pid`. A process that exits sends an
+exit signal to the processes linked to it. Normally, this would cause
+the linked process to also exit, but in this case we’ve taken
+care to have `walk` trap all incoming exit signals.  It therefore
+receives a exit tuple, and is able to bubble up the result to its
+own parent, which is waiting in the `trial` to receive it.
+
+We’ve used the same `location` procedure to create the home and
+office processes. They are straightforward loops, whose argument
+(“state”) holds the number of umbrellas available at that
+location.  `walk` starts the ball rolling by sending to
+`home-pid` a message containing the pid of the office. Other
+values in this initial message are the number of walks so far and whether
+there is an umbrella going in: both values are 0.
+
+Each location initially has its own `num-umbrellas` set to 1.  On receiving 
+a message (i.e. an incoming AMP), the location collects the
+incoming umbrella,
+if any, notes the pid for the other location, and does one of three things:
+
+(1) If the message indicates that the `max-num-walks` have been
+achieved, it exits with that value. Ultimately the trial gets
+this value.
+
+(2) If it’s raining when  AMP is to set forth again, it arms
+him with an umbrella, if there is any, and sends him off to
+the other location, after bumping up the `num-walks`.  If there
+is no umbrella to hand, it exits with the value of `num-walks`
+so far.
+
+(3) If it isn’t raining, it sends  AMP, umbrella-less, to the
+other location, after bumping up the `num-walks`.
+
+We finally need to call Monte Carlo on these trials. We’ll define
+a `run` that takes two arguments, one for the probability of
+raining, and the other the max number of walks.  
+
+```l
+(defun run (rain-prob max-num-walks)
+  (: montecarlo run
+     (lambda () (trial rain-prob max-num-walks))))
+````
+
+For convenience, we’ll have some other `run`s with one or both
+arguments defaulted:
+
+```l
+; assume AMP walks no more than 5 years
+(defun run (rain-prob)
+  (run rain-prob (* 365 2 5)))
+````
+
+```l
+; assume it rains with a probability 0.7
+(defun run ()
+  (run 0.7))
+````
+
+Put all this in a file `umbrella.lfe`, with the module
+declaration:
+
+```l
+(defmodule umbrella
+  (export (run 2) (run 1) (run 0)))
+````
+
+We can now call, say,
+
+```l
+(: umbrella run 0.4)
+````
+
+You will find that  AMP gets stranded in a matter of mere
+days.  What do you think the result will be if the probability of
+rain is 0 or 1?  What it if it is a little more than 0 or a
+little less than 1?  Well, you don’t have to puzzle over it.
+Just call `run` with the appropriate arguments!
