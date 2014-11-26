@@ -1,4 +1,3 @@
-.\" first change 2013–02–28
 .\" last change 2014–11–26
 # The filing system
 
@@ -39,7 +38,7 @@ visible.
 % lfe
 Erlang ...
 LFE Shell ...
-> (: montyhall run)
+> (montyhall:run)
 > 0.6713
 ````
 
@@ -107,7 +106,7 @@ wrapper to the `run` in `montecarlo.lfe`:
 
 ```l
 (defun run ()
-  (: montecarlo run (fun game 0)))
+  (montecarlo:run (fun game 0)))
 ````
 
 `(fun game 0)`

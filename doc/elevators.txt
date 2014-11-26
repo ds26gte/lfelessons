@@ -1,4 +1,3 @@
-.\" first change 2013–02–28
 .\" last change 2014–11–26
 
 # ElevaTorS going the wrong way
@@ -113,7 +112,7 @@ an ETS table as a separate process that responds to insert and lookup
 messages.  To create a new table called `elevators`:
 
 ```l
-(: ets new 'elevators
+(ets:new 'elevators
   (list 'named_table (tuple 'keypos (elevator-label))))
 ````
 
@@ -121,19 +120,19 @@ The final argument is a list of options:
 The `’named_table` is needed so we can refer to the table using
 the atom `elevators`.  The  tuple with `keypos` declares the table’s
 key to be `(elevator-id)`, i.e., the index into an elevator
-record that identifies its label. To belabour the obvious, we intend to store
+record that identifies its label. To belabor the obvious, we intend to store
 `elevator`s (instances of the `elevator` type)
 in our `elevators` ETS table, and we will be using the
 elevator’s `label` field to lookup or update the records in the table.
 
 ```l
-(: ets insert ‘elevators (make-elevator label 5))
+(ets:insert 'elevators (make-elevator label 5))
 ````
 
 Finding an elevator instance with a given label is almost as easy:
 
 ```l
-(: ets lookup 'elevators 10)
+(ets:lookup 'elevators 10)
 ````
 
 Note that this returns ⋆a list⋆ containing the required
@@ -143,7 +142,7 @@ second, there are other types of ETS tables — bag-like, not
 set-like — that can return
 multiple table elements.
 
-Finally, we can use `(: ets info ‘elevators)` to check if an
+Finally, we can use `(ets:info ‘elevators)` to check if an
 `elevators` table already exists.  This is a useful check
 because trying to create a table with the same name as an
 existent one triggers error.
@@ -163,15 +162,15 @@ movement (+1 for up, -1 for down) to each elevator.  We’ll use
 the `elevator` record defined above.
 
 Basic arithmetic is enough to calculate the distance needed to be
-travelled by each elevator to reach Gamow, and the direction it
-will be travelling in on reaching Gamow.  We will store these
+traveled by each elevator to reach Gamow, and the direction it
+will be traveling in on reaching Gamow.  We will store these
 values in an ETS table for `elevators` as defined above. Next,
 we’ll add another entry into the ETS table for an elevator
-labelled `closest-so-far`, and initialize it with elevator
+labeled `closest-so-far`, and initialize it with elevator
 number 1.  We’ll scan the ETS table for all the remaining
 elevators, updating `closest-so-far` whenever we find an
 elevator that is even closer to Gamow.  After the scan is
-complete, the elevator labelled `closest-so-far` will indeed be
+complete, the elevator labeled `closest-so-far` will indeed be
 the elevator that will reach Gamow before all others.  Since
 we’re finding the probabilty that Gamow will be frustrated, if
 this closest elevator is going the wrong way (down), the trial
@@ -186,8 +185,8 @@ arithmetic spelled out.
     (fletrec ((calc-elevs  
                 (i)  
                 (if (=< i num-elevators)  
-                  (let⋆ ((i-position (: random uniform))  
-                         (i-direction (if (< (: random uniform) 0.5) 1 -1))  
+                  (let⋆ ((i-position (random:uniform))  
+                         (i-direction (if (< (random:uniform) 0.5) 1 -1))  
                          (distance-to-gamow  
                            (cond ((> i-position gamow-height)  
                                   (case i-direction  
@@ -203,32 +202,32 @@ arithmetic spelled out.
                            (cond ((> i-position gamow-height) -1)  
                                  ((< i-position gamow-height) 1)  
                                  ((== i-position gamow-height) i-direction))))  
-                    (: ets insert ‘elevators  
+                    (ets:insert 'elevators  
                        (set-elevator  
-                         (car (: ets lookup ‘elevators i))  
+                         (car (ets:lookup 'elevators i))  
                          distance-to-gamow distance-to-gamow  
                          direction-seen-by-gamow direction-seen-by-gamow))  
                     (calc-elevs (+ i 1))))))  
       (calc-elevs 1))  
-    (: ets insert ‘elevators  
+    (ets:insert 'elevators  
        (set-elevator  
-         (car (: ets lookup ‘elevators 1))  
-         label ‘closest-so-far))  
+         (car (ets:lookup 'elevators 1))  
+         label 'closest-so-far))  
     (fletrec ((find-closest-elev  
                 (i)  
                 (if (=< i num-elevators)  
                   (progn  
-                    (let ((ith-elev (car (: ets lookup ‘elevators i))))  
+                    (let ((ith-elev (car (ets:lookup 'elevators i))))  
                       (if (< (elevator-distance-to-gamow ith-elev)  
                              (elevator-distance-to-gamow  
-                               (car (: ets lookup ‘elevators ‘closest-so-far))))  
-                        (: ets insert ‘elevators  
+                               (car (ets:lookup 'elevators 'closest-so-far))))  
+                        (ets:insert 'elevators  
                            (set-elevator ith-elev  
-                                         label ‘closest-so-far)))  
+                                         label 'closest-so-far)))  
                       (find-closest-elev (+ i 1)))))))  
       (find-closest-elev 2))  
     (let ((closest-elev  
-            (car (: ets lookup ‘elevators ‘closest-so-far))))  
+            (car (ets:lookup 'elevators 'closest-so-far))))  
       (if (== (elevator-direction-seen-by-gamow closest-elev) -1)  
         1  
         0))))  
@@ -238,15 +237,15 @@ Now for a `run` procedure that will call Monte Carlo:
 
 ```l
 (defun run (num-elevators)
-  (if (== (: ets info 'elevators) 'undefined)
-    (: ets new 'elevators (list 'named_table (tuple 'keypos (elevator-label)))))
+  (if (== (ets:info 'elevators) 'undefined)
+    (ets:new 'elevators (list 'named_table (tuple 'keypos (elevator-label)))))
   (fletrec ((loop (i)
                   (if (=< i num-elevators)
                     (progn
-                      (: ets insert 'elevators (make-elevator label i))
+                      (ets:insert 'elevators (make-elevator label i))
                       (loop (+ i 1))))))
     (loop 1))
-  (: montecarlo run (lambda () (trial num-elevators))))
+  (montecarlo:run (lambda () (trial num-elevators))))
 ````
 
 Put all this in a module file `elevator.lfe` with the following
@@ -257,7 +256,7 @@ header:
   (export (run 1)))  
 ````
 
-`(: elevator run N)` should give values close to 1/2 +
+`(elevator:run N)` should give values close to 1/2 +
 (1/2)⋆(2/3)⋆⋆N.
 
 ## Functional elevators
@@ -290,8 +289,8 @@ for functional), with records but no ETS.
     (fletrec ((calc-elevs  
                 (i elevs-so-far)  
                 (if (=< i num-elevators)  
-                  (let⋆ ((i-position (: random uniform))  
-                         (i-direction (if (< (: random uniform) 0.5) 1 -1))  
+                  (let⋆ ((i-position (random:uniform))  
+                         (i-direction (if (< (random:uniform) 0.5) 1 -1))  
                          (distance-to-gamow  
                            (cond ((> i-position gamow-height)  
                                   (case i-direction  
@@ -319,7 +318,7 @@ for functional), with records but no ETS.
         (fletrec ((find-closest-elev  
                     (i closest-so-far)  
                     (if (=< i num-elevators)  
-                      (let ((ith-elev (: lists nth i elevs)))  
+                      (let ((ith-elev (lists:nth i elevs)))  
                         (find-closest-elev  
                           (+ i 1)  
                           (if (< (elevator-distance-to-gamow ith-elev)  
@@ -333,7 +332,7 @@ for functional), with records but no ETS.
               0)))))))  
 
 (defun run (num-elevators)
-  (: montecarlo run (lambda () (trial num-elevators))))  
+  (montecarlo:run (lambda () (trial num-elevators))))  
 ````
 
 There, that wasn’t too painful, and you may even like this

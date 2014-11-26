@@ -1,9 +1,8 @@
-.\" first change 2013–02–28
 .\" last change 2014–11–26
 
 # Numerical examples, really?
 
-Here is a  introduction to LFE, or Lisp-Flavoured
+Here is a  introduction to LFE, or Lisp-Flavored
 Erlang (./bibliog.txt#lfe).†1
 
 † 1
@@ -63,8 +62,8 @@ scenario (or experiment, or game, in this context):
 
 ```l
 (defun game ()
-  (let ((actual-loc-of-car (: random uniform 3))
-        (loc-picked-by-player (: random uniform 3)))
+  (let ((actual-loc-of-car (random:uniform 3))
+        (loc-picked-by-player (random:uniform 3)))
     (if (== actual-loc-of-car loc-picked-by-player)
         0
         1)))
@@ -76,7 +75,7 @@ introduces local variables, here: `actual-loc-of-car`, for the
 actual location of the car; and
 `loc-picked-by-player`, for the location initially chosen by
 the player.
-`(: random uniform N)` returns a random integer uniformly
+`(random:uniform N)` returns a random integer uniformly
 distributed between
 `1` and `N`, inclusive: The procedure called is `uniform`,
 from the standard module `random`.
@@ -147,9 +146,9 @@ LFE Shell <version> (abort with ^G)
 At the LFE prompt (`>`), call the procedure `run`:
 
 ```l
-> (: montyhall run)
+> (montyhall:run)
 ````
 
-`(: montyhall run)` is how you call the `export`ed
+`(montyhall:run)` is how you call the `export`ed
 procedure `run` in the module `montyhall`.
 The result should be close to 2/3.

@@ -1,4 +1,3 @@
-.\" first change 2013–02–28
 .\" last change 2014–11–26
 
 # The lazy student
@@ -46,12 +45,12 @@ let’s define it in a module `probutil`:
                   (if (=< j m)
                     (fletrec ((loop2 (i)
                                      (let ((i (if (> i n) 1 i)))
-                                       (if (: lists member i already-selected)
+                                       (if (lists:member i already-selected)
                                          (loop2 (+ i 1))
                                          (loop (+ j 1)
                                                (cons i result)
                                                (cons i already-selected))))))
-                      (loop2 (: random uniform n)))
+                      (loop2 (random:uniform n)))
                     result)))
     (loop 1 () ())))
 
@@ -67,24 +66,24 @@ We can now write the solution for the lazy-student problem in
   (export (run 1)))
 
 (defun count-correct-guesses (num-questions)
-  (let ((guesses (: probutil randperm num-questions)))
+  (let ((guesses (probutil:randperm num-questions)))
     (fletrec ((loop (i correct-so-far)
                     (if (=< i num-questions)
                       (loop (+ i 1)
-                            (if (== (: lists nth i guesses) i)
+                            (if (== (lists:nth i guesses) i)
                               (+ correct-so-far 1)
                               correct-so-far))
                       correct-so-far)))
       (loop 1 0))))
 
 (defun run (num-questions)
-  (: montecarlo run (lambda () (count-correct-guesses num-questions))))
+  (montecarlo:run (lambda () (count-correct-guesses num-questions))))
 ````
 
 This reuses the module `montecarlo` we defined earlier.  Type
 
 ```l
-(: guess run 24)
+(guess:run 24)
 ````
 
 at the LFE prompt to find the average number of correct guesses
@@ -109,12 +108,12 @@ We can code this new scenario in module `guess2` as follows:
     (fletrec ((loop (i correct-so-far)
                     (if (=< i num-questions)
                       (loop (+ i 1)
-                            (if (== (: random uniform num-questions) i)
+                            (if (== (random:uniform num-questions) i)
                               (+ correct-so-far 1)
                               correct-so-far))
                       correct-so-far)))
       (loop 1 0)))
 
 (defun run (num-questions)
-  (: montecarlo run (lambda () (count-correct-guesses num-questions))))
+  (montecarlo:run (lambda () (count-correct-guesses num-questions))))
 ````

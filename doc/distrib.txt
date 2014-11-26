@@ -1,11 +1,9 @@
-.\" first change 2013–03–09
 .\" last change 2014–11–26
 
 # The example code
 
-⋆Download the tarball⋆ ./lfelessons.tar.bz2 containing the
-source for this document and the example code. Unpacking it
-(`tar jxf lfelessons.tar.bz2`)
+⋆Download from GitHub⋆ https://github.com/ds26gte/lfelessons the
+source for this document and the example code. This 
 produces a directory `lfelessons` with the following tree
 structure:
 

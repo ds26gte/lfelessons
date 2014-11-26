@@ -1,4 +1,3 @@
-.\" first change 2013–02–28
 .\" last change 2014–11–26
 # Craps
 
@@ -16,23 +15,23 @@ Here’s the Monte Carlo simulation:
   (export (run 0)))
 
 (defun game ()
-  (: random seed (now))
-  (let ((throw-1 (+ (: random uniform 6)
-                    (: random uniform 6))))
+  (random:seed (now))
+  (let ((throw-1 (+ (random:uniform 6)
+                    (random:uniform 6))))
     (cond ((orelse (== throw-1 7) (== throw-1 11))
            1)
           ((orelse (== throw-1 2) (== throw-1 3) (== throw-1 12))
            0)
           ('true
            (fletrec ((loop ()
-                           (let ((throw-i (+ (: random uniform 6) (: random uniform 6))))
+                           (let ((throw-i (+ (random:uniform 6) (random:uniform 6))))
                              (cond ((== throw-i throw-1) 1)
                                    ((== throw-i 7) 0)
                                    ('true (loop))))))
              (loop))))))
 
 (defun run ()
-  (: montecarlo run #'game/0))
+  (montecarlo:run #'game/0))
 ````
 
 ## Timed trials
@@ -114,8 +113,8 @@ timeout of 2 minutes:
 
 ```l
 (defun run ()
-  (: montecarlo run
-     (: montecarlo timed-experiment #'game/0
+  (montecarlo:run
+     (montecarlo:timed-experiment #'game/0
         ;if taking more than
         (* 2 60 1000) ;ms
         ;let customer win
@@ -123,9 +122,9 @@ timeout of 2 minutes:
         )))
 ````
 
-`(: craps run)` should give answers close to 0.49293.
+`(craps:run)` should give answers close to 0.49293.
 
-Note that we called `(: random seed (now))` in the beginning of
+Note that we called `(random:seed (now))` in the beginning of
 `game`’s body. This reseeds the random-number generator’s state
 using the current time. This is especially needed in this
 problem because we’re running each game in its own process.

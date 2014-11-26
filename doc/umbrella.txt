@@ -1,4 +1,3 @@
-.\" first change 2013–03–07
 .\" last change 2014–11–26
 
 # Getting wet
@@ -34,14 +33,14 @@ process returns this result as the value of the trial.
 
 ```l
 (defun location (rain-prob max-num-walks)
-  (: random seed (now))
+  (random:seed (now))
   (let ((me (self)))
     (fletrec ((loop (num-umbrellas)
                     (receive
                       ((tuple pid num-walks umbrella)
                        (let ((num-umbrellas (+ num-umbrellas umbrella)))
                          (cond ((>= num-walks max-num-walks) (exit num-walks))
-                               ((< (: random uniform) rain-prob)
+                               ((< (random:uniform) rain-prob)
                                 (if (> num-umbrellas 0)
                                   (progn
                                     (!  pid (tuple me (+ num-walks 1) 1))
@@ -110,7 +109,7 @@ raining, and the other the max number of walks.
 
 ```l
 (defun run (rain-prob max-num-walks)
-  (: montecarlo run
+  (montecarlo:run
      (lambda () (trial rain-prob max-num-walks))))
 ````
 
@@ -140,7 +139,7 @@ declaration:
 We can now call, say,
 
 ```l
-(: umbrella run 0.4)
+(umbrella:run 0.4)
 ````
 
 You will find that  AMP gets stranded in a matter of mere
