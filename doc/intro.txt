@@ -3,9 +3,9 @@
 # Numerical examples, really?
 
 Here is a  introduction to LFE, or Lisp-Flavored
-Erlang (./bibliog.txt#lfe).†1
+Erlang (./bibliog.txt#lfe).(†1)
 
-† 1
+(†1
 Those with a smattering of Scheme or Lisp
 should find a lot that is familiar.
 LFE is
@@ -17,7 +17,7 @@ Term Storage), whose
 usage is very roughly analogous to that of the property lists
 hanging off of symbols in Common Lisp.  Of course, LFE has
 concurrency-related features that are usually not present in
-standard Scheme or Lisp.‡
+standard Scheme or Lisp.†)
 
 While trying to get up to speed on a new language, I’ve found it
 useful to try to program Monte-Carlo solutions to probability

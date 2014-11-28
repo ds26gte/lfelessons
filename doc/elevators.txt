@@ -3,15 +3,15 @@
 # ElevaTorS going the wrong way
 
 George Gamow (./bibliog.txt#dice, prob. 5) is on the 2nd
-floor†1 of a 7-storey building, and wishes to go up.
+floor(†1) of a 7-storey building, and wishes to go up.
 What is the probability that the first elevator Gamow sees will
 be going the wrong way?  Assume, successively, 1, 2, and 3
 elevators in operation.
 
-† 1
+(†1
 North
 American usage, where the ground floor is the 1st, not 0th,
-floor.‡
+floor.†)
 
 A natural approach is to create a list or array
 (since the number of elevators is known) of elevator records, and
