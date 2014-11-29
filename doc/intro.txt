@@ -1,4 +1,4 @@
-.\" last change 2014–11–26
+.\" last change 2014–11–28
 
 # Numerical examples, really?
 
@@ -127,7 +127,7 @@ called `montyhall.lfe`, and add the following header to it:
 The name of the module must match the basename of the file
 containing it. Compile the file as:
 
-````
+```
 % lfec montyhall
 ````
 
@@ -136,7 +136,7 @@ where `%` is your OS prompt.  This produces the compiled file
 
 Now start LFE:
 
-````
+```
 % lfe
 Erlang <version> ...
 LFE Shell <version> (abort with ^G)
