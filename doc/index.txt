@@ -1,10 +1,10 @@
-.\" last change 2014–11–26
+.\" last change 2015-05-01
 
-# LFE Lessons #
+.= LFE Lessons #
 
 .so version.txt
 
-### Contents
+.=== Contents
 
 .so intro.txt Numerical examples, really?
 .so erllib.txt The filing system
@@ -14,3 +14,5 @@
 .so umbrella.txt Getting wet
 .so distrib.txt The example code
 .so bibliog.txt References
+
+.NAV _ intro.txt _

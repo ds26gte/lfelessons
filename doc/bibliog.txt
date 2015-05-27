@@ -1,29 +1,31 @@
-.\" last change 2014–11–26
+.\" last change 2015-05-01
 
-# References
+.= References
 
-††† jaerlang
-Joe Armstrong, ⋆Programming Erlang⋆
+.BB jaerlang
+Joe Armstrong, -: Programming Erlang
 pragprog.com/book/jaerlang/programming-erlang, Pragmatic
 Bookshelf, 2007
 
-††† lysefgg
-Fred Hébert, ⋆Learn You Some Erlang for Great Good⋆
+.BB lysefgg
+Fred Hébert, -: Learn You Some Erlang for Great Good
 learnyousomeerlang.com, No Starch, 2013
 
-††† 50cpp
-Frederick Mosteller, ⋆Fifty Challenging Problems in Probability
-with Solutions⋆ store.doverpublications.com/0486653552.html,
+.BB 50cpp
+Frederick Mosteller, -: Fifty Challenging Problems in Probability
+with Solutions store.doverpublications.com/0486653552.html,
 Dover, 1987
 
-††† idiots
-Paul J. Nahin, ⋆Duelling Idiots and Other Probability Puzzlers⋆
+.BB idiots
+Paul J. Nahin, -: Duelling Idiots and Other Probability Puzzlers
 press.princeton.edu/titles/6914.html, Princeton, 2000
 
-††† dice
-Paul J. Nahin, ⋆Digital Dice: Computational Solutions to
-Practical Probability Problems⋆
+.BB dice
+Paul J. Nahin, -: Digital Dice: Computational Solutions to
+Practical Probability Problems
 press.princeton.edu/titles/9991.html, Princeton, 2008
 
-††† lfe
-Robert Virding, ⋆Lisp-Flavored Erlang⋆ lfe.github.com
+.BB lfe
+Robert Virding, -: Lisp-Flavored Erlang lfe.github.com
+
+.NAV distrib.txt _ index.txt

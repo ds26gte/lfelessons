@@ -1,33 +1,33 @@
-.\" last change 2014–11–26
+.\" last change 2015-05-26
 
-# The example code
+.= The example code
 
-⋆Download from GitHub⋆ https://github.com/ds26gte/lfelessons the
-source for this document and the example code. This 
+-: Download from GitHub https://github.com/ds26gte/lfelessons the
+source for this document and the example code. This
 produces a directory `lfelessons` with the following tree
 structure:
 
-```
+.EX
 lfelessons
 ├── manifest
 ├── makefile
 ├── doc
-│   ├── index.txt
-│   ├── title.txt
-│   ├── intro.txt
-│   └── ...
+│   ├── index.txt
+│   ├── title.txt
+│   ├── intro.txt
+│   └── ...
 └── src
     ├── montyhall.lfe
     ├── montecarlo.lfe
     ├── guess.lfe
     └── ...
-````
+.EE
 
 `doc` contains the sources for this document.  `src`
 contains the example code.  There is also a `makefile` which
 may be called with various arguments:
 
-• `make html` makes the HTML version of the document. 
+• `make html` makes the HTML version of the document.
 
 • `make beam` compiles the example LFE module files in `src` into a
 subdirectory called `ebin`.  If you have unpacked
@@ -40,3 +40,5 @@ the compiled modules without qualification.
 
 • `make clean` removes all the created files (compiled
 modules, HTML, auxiliary files).
+
+.NAV umbrella.txt bibliog.txt index.txt

@@ -1,5 +1,5 @@
-.\" last change 2014–11–26
-# Craps
+.\" last change 2015-05-26
+.= Craps
 
 In the game of craps (./bibliog.txt#50cpp, prob. 9), the player throws two dice. If the total is 7
 or 11, he wins.  If it’s 2 or 3 or 12, he loses.  Otherwise, the
@@ -10,7 +10,7 @@ throwing.  What is his probability of winning?
 
 Here’s the Monte Carlo simulation:
 
-```l
+.EX l
 (defmodule craps
   (export (run 0)))
 
@@ -32,9 +32,9 @@ Here’s the Monte Carlo simulation:
 
 (defun run ()
   (montecarlo:run #'game/0))
-````
+.EE
 
-## Timed trials
+.== Timed trials
 
 The above should  work most of the time, but there is a teeny chance that the
 program will loop forever or at least for too long.  One way to
@@ -46,7 +46,7 @@ can run the game within a time limit.  We’ll put this procedure
 in the `montecarlo` module, as we expect it will be useful in
 other problems:
 
-```l
+.EX l
 (defun timed-experiment (experiment timeout default-result)
   (lambda ()
     (let* ((experiment-ref (make_ref))
@@ -58,7 +58,7 @@ other problems:
         (after timeout
                (exit experiment-pid '"taking too much time; return default result")
                default-result)))))
-````
+.EE
 
 We now start to use LFE features that are not usually mimickable
 in standard Scheme and Lisp.  `timed-experiment` sets three
@@ -111,7 +111,7 @@ Remember to add `(timed-experiment 3)` to `montecarlo`’s
 Back in module `craps`, we now redefine `run` to use a
 timeout of 2 minutes:
 
-```l
+.EX l
 (defun run ()
   (montecarlo:run
      (montecarlo:timed-experiment #'game/0
@@ -120,7 +120,7 @@ timeout of 2 minutes:
         ;let customer win
         1
         )))
-````
+.EE
 
 `(craps:run)` should give answers close to 0.49293.
 
@@ -134,3 +134,5 @@ result, thus sabotaging the simulation.  If the games were not
 spawned, as in our first attempt, this would not be a problem, as
 the games all operate on the same random state (not a copy), so
 they can’t mimic each other’s stream of random numbers.
+
+.NAV lazystudent.txt elevators.txt index.txt

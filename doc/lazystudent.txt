@@ -1,6 +1,6 @@
-.\" last change 2014–11–26
+.\" last change 2015-05-26
 
-# The lazy student
+.= The lazy student
 
 A lazy student (./bibliog.txt#dice, p. 4) is given an exam containing N
 questions and the N
@@ -9,19 +9,19 @@ He has to match them.  Since he is thoroughly clueless, all he
 can do is  guess. On average, how many correct
 matches can he hope to get?
 
-The answer is 1. 
+The answer is 1.
 This seemed totally incredible to me!
 Monte
 Carlo to the rescue.
 
 First, we will need a procedure `randperm` to produce a random permutation of the
 natural numbers from 1 to N.  This will simulate one set of
-guesses for N questions.  Thus, if N is 4, then `(randperm 4)` 
+guesses for N questions.  Thus, if N is 4, then `(randperm 4)`
 might produce
 
-```l
+.EX l
 (4 2 3 1)
-````
+.EE
 
 which implies that the student matched answer-4 with question-1,
 answer-2 with question-2, etc.
@@ -36,7 +36,7 @@ the first `N` natural numbers.  `(randperm N)` then is short for
 Since we expect this procedure to be useful for other problems,
 let’s define it in a module `probutil`:
 
-```l
+.EX l
 (defmodule probutil
   (export (randperm 1) (randperm 2)))
 
@@ -56,12 +56,12 @@ let’s define it in a module `probutil`:
 
 (defun randperm (n)
   (randperm n n))
-````
+.EE
 
 We can now write the solution for the lazy-student problem in
 `guess.lfe`:
 
-```l
+.EX l
 (defmodule guess
   (export (run 1)))
 
@@ -78,13 +78,13 @@ We can now write the solution for the lazy-student problem in
 
 (defun run (num-questions)
   (montecarlo:run (lambda () (count-correct-guesses num-questions))))
-````
+.EE
 
 This reuses the module `montecarlo` we defined earlier.  Type
 
-```l
+.EX l
 (guess:run 24)
-````
+.EE
 
 at the LFE prompt to find the average number of correct guesses
 the lazy student can expect to make on a questionnaire with 24
@@ -100,7 +100,7 @@ surprisingly, is 1!
 
 We can code this new scenario in module `guess2` as follows:
 
-```l
+.EX l
 (defmodule guess2
   (export (run 1)))
 
@@ -116,4 +116,6 @@ We can code this new scenario in module `guess2` as follows:
 
 (defun run (num-questions)
   (montecarlo:run (lambda () (count-correct-guesses num-questions))))
-````
+.EE
+
+.NAV erllib.txt craps.txt index.txt

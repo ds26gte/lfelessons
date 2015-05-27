@@ -1,10 +1,13 @@
-# last change 2014-11-26
+# last change 2015-01-03
 
-html: index.html
+txtfiles = $(wildcard [!v]*.txt)
 
-index.html: *.txt *.css .lispwords
-	txt2page index.txt intro.txt erllib.txt lazystudent.txt \
-	craps.txt elevators.txt umbrella.txt distrib.txt bibliog.txt
+htmlfiles = $(patsubst %.txt,%.html,$(txtfiles))
+
+all: $(htmlfiles)
+
+%.html: %.txt
+	txt2page $<
 
 clean:
 	rm -fr *.html
