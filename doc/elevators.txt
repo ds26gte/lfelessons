@@ -1,4 +1,4 @@
-.\" last change 2015-05-26
+.\" last change 2015-06-01
 
 .= ElevaTorS going the wrong way
 
@@ -113,7 +113,7 @@ an ETS table as a separate process that responds to insert and lookup
 messages.  To create a new table called `elevators`:
 
 .EX l
-(ets:new ‘elevators
+(ets:new 'elevators
   (list 'named_table (tuple 'keypos (elevator-label))))
 .EE
 
@@ -127,13 +127,13 @@ in our `elevators` ETS table, and we will be using the
 elevator’s `label` field to lookup or update the records in the table.
 
 .EX l
-(ets:insert ‘elevators (make-elevator label 5))
+(ets:insert 'elevators (make-elevator label 5))
 .EE
 
 Finding an elevator instance with a given label is almost as easy:
 
 .EX l
-(ets:lookup ‘elevators 10)
+(ets:lookup 'elevators 10)
 .EE
 
 Note that this returns ⋆a list⋆ containing the required

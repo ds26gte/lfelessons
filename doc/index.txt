@@ -1,6 +1,6 @@
-.\" last change 2015-05-01
+.\" last change 2015-06-01
 
-.= LFE Lessons #
+.=* LFE Lessons
 
 .so version.txt
 
