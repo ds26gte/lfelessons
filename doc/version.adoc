@@ -1,4 +1,0 @@
-[%hardbreaks]
-https://github.com/ds26gte/lfelessons
-Dorai Sitaram
-Last modified: 2015-11-16
