@@ -1,0 +1,27 @@
+// last change 2015-11-16
+
+== References
+
+[bibliography]
+- [[[jaerlang]]] Joe Armstrong,
+http://pragprog.com/book/jaerlang/programming-erlang[Programming
+Erlang], Pragmatic Bookshelf, 2007
+
+- [[[lysefgg]]] Fred Hébert, http://learnyousomeerlang.com[Learn
+You Some Erlang for Great Good], No Starch, 2013
+
+- [[[50cpp]]] Frederick Mosteller,
+http://store.doverpublications.com/0486653552.html[Fifty
+Challenging Problems in Probability with Solutions], Dover, 1987
+
+- [[[idiots]]] Paul J. Nahin,
+http://press.princeton.edu/titles/6914.html[Duelling Idiots and
+Other Probability Puzzlers], Princeton, 2000
+
+- [[[dice]]] Paul J. Nahin,
+http://press.princeton.edu/titles/9991.html[Digital Dice:
+Computational Solutions to Practical Probability Problems],
+Princeton, 2008
+
+- [[[lfe]]] Robert Virding, http://lfe.github.com[Lisp-Flavored
+Erlang]

@@ -1,8 +1,8 @@
-.\" last change 2015-05-26
+// last change 2015-11-16
 
-.= Getting wet
+== Getting wet
 
-An absent-minded prof (./bibliog.txt#dice, prob. 10) intends to walk to work in the
+An absent-minded prof (link:bibliog.adoc#dice[], prob. 10) intends to walk to work in the
 morning and back home in the evening every day for five years.
 The walk is short enough that if the weather is clear when he sets out he
 will make it to his destination without threat of rain.  But if
@@ -31,7 +31,7 @@ managed to go the full five years, the location he is at exits
 with a message containing the number of walks so far.  The `walk`
 process returns this result as the value of the trial.
 
-.EX l
+----
 (defun location (rain-prob max-num-walks)
   (random:seed (now))
   (let ((me (self)))
@@ -66,7 +66,7 @@ process returns this result as the value of the trial.
     (receive
       (result
         result))))
-.EE
+----
 
 The procedure `spawn_link` both spawns a child and links the
 parent to the child.  Thus the `walk` process is linked to both
@@ -107,45 +107,43 @@ We finally need to call Monte Carlo on these trials. We’ll define
 a `run` that takes two arguments, one for the probability of
 raining, and the other the max number of walks.
 
-.EX l
+----
 (defun run (rain-prob max-num-walks)
   (montecarlo:run
      (lambda () (trial rain-prob max-num-walks))))
-.EE
+----
 
 For convenience, we’ll have some other `run`s with one or both
 arguments defaulted:
 
-.EX l
+----
 ; assume AMP walks no more than 5 years
 (defun run (rain-prob)
   (run rain-prob (* 365 2 5)))
-.EE
+----
 
-.EX l
+----
 ; assume it rains with a probability 0.7
 (defun run ()
   (run 0.7))
-.EE
+----
 
 Put all this in a file `umbrella.lfe`, with the module
 declaration:
 
-.EX l
+----
 (defmodule umbrella
   (export (run 2) (run 1) (run 0)))
-.EE
+----
 
 We can now call, say,
 
-.EX l
+----
 (umbrella:run 0.4)
-.EE
+----
 
 You will find that  AMP gets stranded in a matter of mere
 days.  What do you think the result will be if the probability of
 rain is 0 or 1?  What it if it is a little more than 0 or a
 little less than 1?  Well, you don’t have to puzzle over it.
 Just call `run` with the appropriate arguments!
-
-.NAV elevators.txt distrib.txt index.txt

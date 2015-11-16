@@ -1,7 +1,7 @@
-.\" last change 2015-05-26
-.= Craps
+// last change 2015-11-16
+== Craps
 
-In the game of craps (./bibliog.txt#50cpp, prob. 9), the player throws two dice. If the total is 7
+In the game of craps (link:bibliog.adoc#50cpp[], prob.9), the player throws two dice. If the total is 7
 or 11, he wins.  If it’s 2 or 3 or 12, he loses.  Otherwise, the
 value thrown is remembered as the “point”, and he continues to
 throw the two dice.  If he is able to repeat the “point”, he
@@ -10,7 +10,7 @@ throwing.  What is his probability of winning?
 
 Here’s the Monte Carlo simulation:
 
-.EX l
+----
 (defmodule craps
   (export (run 0)))
 
@@ -22,19 +22,19 @@ Here’s the Monte Carlo simulation:
            1)
           ((orelse (== throw-1 2) (== throw-1 3) (== throw-1 12))
            0)
-          ('true
+          (‘true
            (fletrec ((loop ()
                            (let ((throw-i (+ (random:uniform 6) (random:uniform 6))))
                              (cond ((== throw-i throw-1) 1)
                                    ((== throw-i 7) 0)
-                                   ('true (loop))))))
+                                   (‘true (loop))))))
              (loop))))))
 
 (defun run ()
-  (montecarlo:run #'game/0))
-.EE
+  (montecarlo:run #’game/0))
+----
 
-.== Timed trials
+=== Timed trials
 
 The above should  work most of the time, but there is a teeny chance that the
 program will loop forever or at least for too long.  One way to
@@ -46,7 +46,7 @@ can run the game within a time limit.  We’ll put this procedure
 in the `montecarlo` module, as we expect it will be useful in
 other problems:
 
-.EX l
+----
 (defun timed-experiment (experiment timeout default-result)
   (lambda ()
     (let* ((experiment-ref (make_ref))
@@ -56,9 +56,9 @@ other problems:
       (receive
         ((tuple experiment-ref result) result)
         (after timeout
-               (exit experiment-pid '"taking too much time; return default result")
+               (exit experiment-pid ‘”taking too much time; return default result”)
                default-result)))))
-.EE
+----
 
 We now start to use LFE features that are not usually mimickable
 in standard Scheme and Lisp.  `timed-experiment` sets three
@@ -111,16 +111,16 @@ Remember to add `(timed-experiment 3)` to `montecarlo`’s
 Back in module `craps`, we now redefine `run` to use a
 timeout of 2 minutes:
 
-.EX l
+----
 (defun run ()
   (montecarlo:run
-     (montecarlo:timed-experiment #'game/0
+     (montecarlo:timed-experiment #’game/0
         ;if taking more than
         (* 2 60 1000) ;ms
         ;let customer win
         1
         )))
-.EE
+----
 
 `(craps:run)` should give answers close to 0.49293.
 
@@ -134,5 +134,3 @@ result, thus sabotaging the simulation.  If the games were not
 spawned, as in our first attempt, this would not be a problem, as
 the games all operate on the same random state (not a copy), so
 they can’t mimic each other’s stream of random numbers.
-
-.NAV lazystudent.txt elevators.txt index.txt

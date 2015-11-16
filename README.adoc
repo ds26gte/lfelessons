@@ -1,0 +1,17 @@
+// last change 2015-11-16
+
+= LFE Lessons
+
+include::doc/version.adoc[Front matter]
+
+=== Contents
+
+[%hardbreaks]
+include::doc/intro.adoc[Numerical examples, really?]
+include::doc/erllib.adoc[The filing system]
+include::doc/lazystudent.adoc[The lazy student]
+include::doc/craps.adoc[Craps]
+include::doc/elevators.adoc[ElevaTorS going the wrong way]
+include::doc/umbrella.adoc[Getting wet]
+include::doc/distrib.adoc[The example code]
+include::doc/bibliog.adoc[References]

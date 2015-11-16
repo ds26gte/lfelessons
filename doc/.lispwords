@@ -1,5 +1,0 @@
-;last modified 2013-03-17
-
-;these are keywords in LFE
-
-! : after defmodule defrecord defun export fletrec fun funcall receive

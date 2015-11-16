@@ -1,12 +1,9 @@
-.\" last change 2015-05-26
+// last change 2015-11-16
 
-.= Numerical examples, really?
+== Numerical examples, really?
 
 Here is a  introduction to LFE, or Lisp-Flavored
-Erlang (./bibliog.txt#lfe).(†1)
-
-.FS 1
-Those with a smattering of Scheme or Lisp
+Erlang (link:bibliog.adoc#lfe[]).footnote:[Those with a smattering of Scheme or Lisp
 should find a lot that is familiar.
 LFE is
 properly tail-recursive, like Scheme, but keeps the function-name
@@ -17,8 +14,7 @@ Term Storage), whose
 usage is very roughly analogous to that of the property lists
 hanging off of symbols in Common Lisp.  Of course, LFE has
 concurrency-related features that are usually not present in
-standard Scheme or Lisp.
-.FE
+standard Scheme or Lisp.]
 
 While trying to get up to speed on a new language, I’ve found it
 useful to try to program Monte-Carlo solutions to probability
@@ -35,13 +31,16 @@ In one’s burning desire to get to the result, one quickly learns the
 rudiments of the language: basic arithmetic operations,
 conditionals, loops, procedures, scoping. For a collection of
 varied problems suitable for this venture,
-see ./bibliog.txt#50cpp, ./bibliog.txt#idiots,
-./bibliog.txt#dice.
+see
+link:bibliog.adoc#50cpp[],
+link:bibliog.adoc#idiots[],
+link:bibliog.adoc#dice[].
 
-.== Everybody doesn’t get a car
+=== Everybody doesn’t get a car
 
 As a first example, let us solve the very famous but still
-twitchily surprising Monty Hall problem (./bibliog.txt#idiots, p.
+twitchily surprising Monty Hall problem
+(link:bibliog.adoc#idiots[], p.
 192). A game-show host
 shows a player three closed doors, behind one of which is
 the prize, a car.  The player picks a door, whereupon the host
@@ -61,14 +60,14 @@ a switch wins.
 First, we define a thunk (0-ary procedure) `game` representing each
 scenario (or experiment, or game, in this context):
 
-.EX l
+----
 (defun game ()
   (let ((actual-loc-of-car (random:uniform 3))
         (loc-picked-by-player (random:uniform 3)))
     (if (== actual-loc-of-car loc-picked-by-player)
         0
         1)))
-.EE
+----
 
 This is pretty straightforward Lisp: `defun` defines a
 procedure, here named `game`, with no arguments.  `let`
@@ -94,7 +93,7 @@ should be obvious from the following.
 We now define a thunk `run` that runs `game` a large number
 of times, returning the average return value:
 
-.EX l
+----
 (defun run ()
   (let ((num-trials 10000))
     (fletrec ((loop (i acc)
@@ -102,7 +101,7 @@ of times, returning the average return value:
                     (loop (+ i 1) (+ (game) acc))
                     (/ acc num-trials))))
       (loop 1 0))))
-.EE
+----
 
 Here `fletrec` defines a local recursive procedure `loop`,
 which takes two arguments, `i` and `acc`.  `loop` is called with
@@ -120,38 +119,36 @@ primitive and no need for it either.
 We’ll put the definitions of `game` and `run` in a file
 called `montyhall.lfe`, and add the following header to it:
 
-.EX l
+----
 (defmodule montyhall
   (export (run 0)))
-.EE
+----
 
 The name of the module must match the basename of the file
 containing it. Compile the file as:
 
-.EX
+----
 % lfec montyhall
-.EE
+----
 
 where `%` is your OS prompt.  This produces the compiled file
 `montyhall.beam`.
 
 Now start LFE:
 
-.EX
+----
 % lfe
 Erlang <version> ...
 LFE Shell <version> (abort with ^G)
 >
-.EE
+----
 
 At the LFE prompt (`>`), call the procedure `run`:
 
-.EX l
+----
 > (montyhall:run)
-.EE
+----
 
 `(montyhall:run)` is how you call the `export`ed
 procedure `run` in the module `montyhall`.
 The result should be close to 2/3.
-
-.NAV index.txt erllib.txt index.txt
