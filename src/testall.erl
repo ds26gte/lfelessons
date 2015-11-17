@@ -1,10 +1,10 @@
 % first change 2013-03-03
-% last change 2013-03-06
+% last change 2015-07-11
 
 % You can run these tests in either the lfe or the erl shell.
 %
 % In lfe, type
-%              (: eunit test 'testall)
+%              (eunit:test 'testall)
 %
 % In erl, type
 %              eunit:test(testall).

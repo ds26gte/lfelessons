@@ -144,6 +144,6 @@ We can now call, say,
 
 You will find that  AMP gets stranded in a matter of mere
 days.  What do you think the result will be if the probability of
-rain is 0 or 1?  What it if it is a little more than 0 or a
+rain is 0 or 1?  What if it is a little more than 0 or a
 little less than 1?  Well, you don’t have to puzzle over it.
 Just call `run` with the appropriate arguments!
