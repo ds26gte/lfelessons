@@ -120,7 +120,7 @@ The `’named_table` is needed so we can refer to the table using
 the atom `elevators`.  The  tuple with `keypos` declares the table’s
 key to be `(elevator-id)`, i.e., the index into an elevator
 record that identifies its label. To belabor the obvious, we intend to store
-`elevator`s (instances of the `elevator` type)
+``elevator``s (instances of the `elevator` type)
 in our `elevators` ETS table, and we will be using the
 elevator’s `label` field to lookup or update the records in the table.
 

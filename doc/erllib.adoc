@@ -99,7 +99,7 @@ The `export` indicates we make available both the unary and the
 Note also that within the 2-ary `run`, the argument
 `experiment` when called, requires a `funcall`. This is
 because LFE is a Lisp-2, and any variable containing a function
-must be `funcall`ed, otherwise the symbol-function associated
+must be ``funcall``ed, otherwise the symbol-function associated
 with the variable name would be called.
 
 We also need corresponding changes in `montyhall.lfe`.  We

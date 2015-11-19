@@ -114,7 +114,7 @@ raining, and the other the max number of walks.
      (lambda () (trial rain-prob max-num-walks))))
 ----
 
-For convenience, we’ll have some other `run`s with one or both
+For convenience, we’ll have some other ``run``s with one or both
 arguments defaulted:
 
 ----

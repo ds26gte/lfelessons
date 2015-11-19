@@ -107,7 +107,7 @@ previous trial could send a message that is picked up by a
 subsequent trial, but it helps to be defensive.
 
 Remember to add `(timed-experiment 3)` to `montecarlo`’s
-`export`s.
+``export``s.
 
 Back in module `craps`, we now redefine `run` to use a
 timeout of 2 minutes:
