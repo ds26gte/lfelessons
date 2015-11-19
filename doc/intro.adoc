@@ -1,9 +1,10 @@
-// last change 2015-11-16
+// last change 2015-11-19
+:prewrap!:
 
 == Numerical examples, really?
 
 Here is a  introduction to LFE, or Lisp-Flavored
-Erlang (link:bibliog.adoc#lfe[]).footnote:[Those with a smattering of Scheme or Lisp
+Erlang (<<bibliog.adoc#lfe>>).footnote:[Those with a smattering of Scheme or Lisp
 should find a lot that is familiar.
 LFE is
 properly tail-recursive, like Scheme, but keeps the function-name
@@ -32,15 +33,15 @@ rudiments of the language: basic arithmetic operations,
 conditionals, loops, procedures, scoping. For a collection of
 varied problems suitable for this venture,
 see
-link:bibliog.adoc#50cpp[],
-link:bibliog.adoc#idiots[],
-link:bibliog.adoc#dice[].
+<<bibliog.adoc#50cpp>>,
+<<bibliog.adoc#idiots>>,
+<<bibliog.adoc#dice>>.
 
 === Everybody doesn’t get a car
 
 As a first example, let us solve the very famous but still
 twitchily surprising Monty Hall problem
-(link:bibliog.adoc#idiots[], p.
+(<<bibliog.adoc#idiots>>, p.
 192). A game-show host
 shows a player three closed doors, behind one of which is
 the prize, a car.  The player picks a door, whereupon the host
@@ -149,6 +150,6 @@ At the LFE prompt (`>`), call the procedure `run`:
 > (montyhall:run)
 ----
 
-`(montyhall:run)` is how you call the `export`ed
+`(montyhall:run)` is how you call the ``export``ed
 procedure `run` in the module `montyhall`.
 The result should be close to 2/3.

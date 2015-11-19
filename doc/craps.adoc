@@ -1,7 +1,8 @@
-// last change 2015-11-16
+// last change 2015-11-19
 == Craps
+:prewrap!:
 
-In the game of craps (link:bibliog.adoc#50cpp[], prob.9), the player throws two dice. If the total is 7
+In the game of craps (<<bibliog.adoc#50cpp>>, prob.9), the player throws two dice. If the total is 7
 or 11, he wins.  If it’s 2 or 3 or 12, he loses.  Otherwise, the
 value thrown is remembered as the “point”, and he continues to
 throw the two dice.  If he is able to repeat the “point”, he

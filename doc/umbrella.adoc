@@ -1,8 +1,9 @@
-// last change 2015-11-16
+// last change 2015-11-19
+:prewrap!:
 
 == Getting wet
 
-An absent-minded prof (link:bibliog.adoc#dice[], prob. 10) intends to walk to work in the
+An absent-minded prof (<<bibliog.adoc#dice>>, prob. 10) intends to walk to work in the
 morning and back home in the evening every day for five years.
 The walk is short enough that if the weather is clear when he sets out he
 will make it to his destination without threat of rain.  But if
@@ -90,17 +91,17 @@ a message (i.e. an incoming AMP), the location collects the
 incoming umbrella,
 if any, notes the pid for the other location, and does one of three things:
 
-(1) If the message indicates that the `max-num-walks` have been
+1. If the message indicates that the `max-num-walks` have been
 achieved, it exits with that value. Ultimately the trial gets
 this value.
 
-(2) If it’s raining when  AMP is to set forth again, it arms
+2. If it’s raining when  AMP is to set forth again, it arms
 him with an umbrella, if there is any, and sends him off to
 the other location, after bumping up the `num-walks`.  If there
 is no umbrella to hand, it exits with the value of `num-walks`
 so far.
 
-(3) If it isn’t raining, it sends  AMP, umbrella-less, to the
+3. If it isn’t raining, it sends  AMP, umbrella-less, to the
 other location, after bumping up the `num-walks`.
 
 We finally need to call Monte Carlo on these trials. We’ll define

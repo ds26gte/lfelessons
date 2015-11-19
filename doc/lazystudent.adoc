@@ -1,8 +1,9 @@
-// last change 2015-11-16
+// last change 2015-11-19
+:prewrap!:
 
 == The lazy student
 
-A lazy student (link:bibliog.adoc#dice[], p. 4) is given an exam containing N
+A lazy student (<<bibliog.adoc#dice>>, p. 4) is given an exam containing N
 questions and the N
 correct answers, except that question and answer are not matched.
 He has to match them.  Since he is thoroughly clueless, all he
