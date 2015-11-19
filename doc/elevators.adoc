@@ -66,7 +66,7 @@ One can set many fields at once, with `set-elevator`:
 ----
 (set-elevator elev1
   distance-to-gamow 0.7
-  direction-seen-by-gamow −1)
+  direction-seen-by-gamow -1)
 ----
 
 Finally, records are just syntactic xylitol. The record instances
@@ -185,7 +185,7 @@ arithmetic spelled out.
                 (i)
                 (if (=< i num-elevators)
                   (let⋆ ((i-position (random:uniform))
-                         (i-direction (if (< (random:uniform) 0.5) 1 −1))
+                         (i-direction (if (< (random:uniform) 0.5) 1 -1))
                          (distance-to-gamow
                            (cond ((> i-position gamow-height)
                                   (case i-direction
@@ -198,7 +198,7 @@ arithmetic spelled out.
                                  ((== i-position gamow-height)
                                   0)))
                          (direction-seen-by-gamow
-                           (cond ((> i-position gamow-height) −1)
+                           (cond ((> i-position gamow-height) -1)
                                  ((< i-position gamow-height) 1)
                                  ((== i-position gamow-height) i-direction))))
                     (ets:insert ‘elevators
@@ -227,7 +227,7 @@ arithmetic spelled out.
       (find-closest-elev 2))
     (let ((closest-elev
             (car (ets:lookup ‘elevators ‘closest-so-far))))
-      (if (== (elevator-direction-seen-by-gamow closest-elev) −1)
+      (if (== (elevator-direction-seen-by-gamow closest-elev) -1)
         1
         0))))
 ----
@@ -289,7 +289,7 @@ for functional), with records but no ETS.
                 (i elevs-so-far)
                 (if (=< i num-elevators)
                   (let⋆ ((i-position (random:uniform))
-                         (i-direction (if (< (random:uniform) 0.5) 1 −1))
+                         (i-direction (if (< (random:uniform) 0.5) 1 -1))
                          (distance-to-gamow
                            (cond ((> i-position gamow-height)
                                   (case i-direction
@@ -302,7 +302,7 @@ for functional), with records but no ETS.
                                  ((== i-position gamow-height)
                                   0)))
                          (direction-seen-by-gamow
-                           (cond ((> i-position gamow-height) −1)
+                           (cond ((> i-position gamow-height) -1)
                                  ((< i-position gamow-height) 1)
                                  ((== i-position gamow-height) i-direction))))
                     (calc-elevs (+ i 1)
@@ -326,7 +326,7 @@ for functional), with records but no ETS.
                             closest-so-far)))
                       closest-so-far)))
           (let ((closest-elev (find-closest-elev 2 (car elevs))))
-            (if (== (elevator-direction-seen-by-gamow closest-elev) −1)
+            (if (== (elevator-direction-seen-by-gamow closest-elev) -1)
               1
               0)))))))
 
@@ -336,5 +336,3 @@ for functional), with records but no ETS.
 
 There, that wasn’t too painful, and you may even like this
 solution better!
-
-.NAV craps.txt umbrella.txt index.txt
